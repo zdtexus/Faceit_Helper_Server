@@ -1,73 +1,91 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Faceit Helper Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API that wraps the FACEIT Data API and the Steam Web API, so the client can search for CS2 players and read their stats, matches, maps, bans and rankings in one place.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Client: [Faceit_Helper_Client](https://github.com/zdtexus/Faceit_Helper_Client)
 
-## Description
+## Contents
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Features](#features)
+- [Getting started](#getting-started)
+- [API reference](#api-reference)
+- [Scripts](#scripts)
+- [Project structure](#project-structure)
 
-## Installation
+## Features
 
-```bash
-$ npm install
-```
+- **One search endpoint for every identifier.** It accepts a FACEIT nickname, FACEIT profile URL, SteamID64, Steam profile URL or Steam vanity URL, and works out which one it got.
+- **Player data.** Match history with pagination, per-map statistics, ban history.
+- **Rankings.** CS2 leaderboards by region, optionally by country.
+- **Documented.** Every endpoint has Swagger docs.
 
-## Running the app
+## Getting started
+
+### Prerequisites
+
+- Node.js 18 or later
+- A [FACEIT API key](https://developers.faceit.com/)
+- A [Steam Web API key](https://steamcommunity.com/dev/apikey)
+
+### Installation
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/zdtexus/Faceit_Helper_Server.git
+cd Faceit_Helper_Server
+npm install
 ```
 
-## Test
+### Configuration
+
+Create a `.env` file in the project root:
+
+```env
+FACEIT_API_KEY=your_faceit_api_key
+STEAM_API_KEY=your_steam_api_key
+```
+
+### Running
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
 
-## Support
+| URL | Description |
+|---|---|
+| `http://localhost:7777/api` | API base URL |
+| `http://localhost:7777/swagger` | Swagger UI |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API reference
 
-## Stay in touch
+All endpoints are `GET` and use the `/api` prefix.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Endpoint | Parameters | Description |
+|---|---|---|
+| `/search/:searchValue` | | Find a player by nickname, FACEIT URL, Steam URL or SteamID64 |
+| `/player/:playerId/matches` | `offset`, `limit` (default 100) | Match history |
+| `/player/:playerId/maps` | | Per-map statistics |
+| `/player/:playerId/bans` | | Ban history |
+| `/ranking/region` | `region` (required), `country`, `rank` | Top players, starting at position `rank` |
 
-## License
+## Scripts
 
-Nest is [MIT licensed](LICENSE).
+| Command | Description |
+|---|---|
+| `npm run start:dev` | Start with hot reload |
+| `npm run build` | Compile to `dist/` |
+| `npm run prod` | Run the compiled build |
+| `npm test` | Run unit tests |
+| `npm run test:e2e` | Run end-to-end tests |
+| `npm run lint` | Lint and fix |
+
+## Project structure
+
+```text
+config/          API URLs and auth headers for FACEIT and Steam
+src/
+  search/        Player lookup by any identifier
+  player/        Matches, maps, bans
+  ranking/       Regional and country leaderboards
+  esea/          ESEA league (work in progress)
+  main.ts        Bootstrap, CORS, Swagger
+```
